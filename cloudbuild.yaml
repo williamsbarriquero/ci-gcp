@@ -1,32 +1,28 @@
 steps:
-  - id: "Rodando docker-compose"
+  - id: "Executando docker-compose"
     name: 'docker/compose'
     args: [ '-f', 'docker-compose.cloudbuild.yml', 'up', '-d' ]
 
   - id: "Chown in /var/www"
-    name: 'gcr.io/cloud-builders/docker'
+    name: 'docker'
     args: [ 'exec','-u','root','-t','app','chown','-R','www-data:www-data','/var/www' ]
 
-  - id: "Rodando docker ps"
-    name: 'docker'
-    args: [ 'ps' ]
-
-  - id: "Rodando composer"
+  - id: "Executando composer"
     name: 'docker'
     args: [ 'exec', '-t', 'app', 'composer', 'install' ]
 
-  - id: "Copiando .env"
-    name: 'gcr.io/cloud-builders/docker'
+  - id: "Copiando o arquivo .env.example para .env"
+    name: 'docker'
     args: [ 'exec', '-t', 'app', 'cp', '.env.example', '.env' ]
 
-  - id: "Rodando key:generate"
+  - id: "Rodando artisan key:generate"
     name: 'docker'
     args: [ 'exec', '-t', 'app', 'php', '/var/www/artisan', 'key:generate' ]
 
-  - id: "Rodando migration"
+  - id: "Executando migrations"
     name: 'docker'
     args: [ 'exec', '-t', 'app', 'php', '/var/www/artisan', 'migrate' ]
 
-  - id: "Rodando phpunit"
+  - id: "Executando phpunit"
     name: 'docker'
     args: [ 'exec', '-t', 'app', 'php', '/var/www/vendor/bin/phpunit', '-c', '/var/www/phpunit.xml' ]
